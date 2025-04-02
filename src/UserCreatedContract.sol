@@ -5,6 +5,9 @@ import "./IUserCreatedContract.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
+error OnlyOwner();
+error 
+
 contract UserCreatedContract is IUserCreatedContract {
     address public owner;
     address public recipient;
@@ -51,7 +54,12 @@ contract UserCreatedContract is IUserCreatedContract {
     function getContractCreationDevFee () external view returns (uint256);
     function getContractCreationDevAddress () external view returns (address); // Found in the contract factory variable
 
-    function setRecipient (address recipient) external;
+    function setRecipient (address recipient) external {
+        if (msg.sender != owner) revert OnlyOwner(); // Only the owner can set the recipient
+        require(msg.sender == owner, ); 
+        require(recipient != address(0), "Invalid recipient address");
+        this.recipient = recipient;
+    }
     function setTimeToSend (uint256 timeLeftSecs, uint256 timestamp) external;
 
     function getERC20Balances(address[] calldata tokenAddresses) external view override returns (uint256[] memory) {
