@@ -11,7 +11,11 @@ pragma solidity ^0.8.29;
 //TODO on contract creation give an option to either allow pulling of assets or no pulling of assets.
 //TODO for every new asset added to the contract (except ETH), the contract will need more funding of ETH to cover the gas fees. and there's a genral fee for the contract creation for dev.
 interface IUserCreatedContract {
-    function createContract(address recipient, uint256 timeToSend, bool isPullingAllowed)
-        external
-        returns (address newContract);
+    function calculateChainlinkFee() external view returns (uint256); //Fees of both chainlink automation and regular gas fees
+    function getRecipient() external view returns (address);
+    function getTimeToSend() external view returns (uint256 timeLeftSecs, uint256 timestamp);
+    function getIsPullingAllowed() external view returns (bool); //On contract creation, this will determine if the contract allows pulling of assets or not (Only one way)
+    function getOwner() external view returns (address);
+    function setRecipient(address newRecipient) external;
+    function setTimeToSend(uint256 newTimeToSend) external;
 }
