@@ -4,9 +4,7 @@ pragma solidity ^0.8.29;
 import "./IUserCreatedContract.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-
 error OnlyOwner();
-error 
 
 contract UserCreatedContract is IUserCreatedContract {
     address public s_owner; // The owner of the contract, who can set the recipient and other parameters
@@ -15,7 +13,7 @@ contract UserCreatedContract is IUserCreatedContract {
     uint256 public s_timeToSend;
     uint256 public s_contractCreationTime; // The timestamp for when the contract was created
     uint256 public s_contractCreationDevFee; // This is the fee paid to the developer for creating the contract
-    uint256 public s_contractSendGasFee; // This is the gas fee for sending assets 
+    uint256 public s_contractSendGasFee; // This is the gas fee for sending assets
 
     bool public s_isPullingAllowed; // This determines if the contract allows pulling of assets or not
 
@@ -35,21 +33,21 @@ contract UserCreatedContract is IUserCreatedContract {
         isPullingAllowed = _isPullingAllowed;
     }
 
-    function getRecipient () external view returns (address);
-    function getTimeToSend () external view returns (uint256 timeLeftSecs , uint256 timestamp); // can have both or one of them
-    function getIsPullingAllowed () external view returns (bool);
-    function getOwner () external view returns (address);
-    function getContractAddress () external view returns (address);
+    function getRecipient() external view returns (address);
+    function getTimeToSend() external view returns (uint256 timeLeftSecs, uint256 timestamp); // can have both or one of them
+    function getIsPullingAllowed() external view returns (bool);
+    function getOwner() external view returns (address);
+    function getContractAddress() external view returns (address);
     function getERC20Balances(address[] calldata tokenAddresses) external view returns (uint256[] memory);
     function getERC721Balances(address[] calldata tokenAddresses) external view returns (uint256[] memory);
     function getERC1155Balances(address[] calldata tokenAddresses) external view returns (uint256[] memory);
-    function getETHBalance () external view returns (uint256);
+    function getETHBalance() external view returns (uint256);
 
-    function getContractCreationTime () external view returns (uint256) {
+    function getContractCreationTime() external view returns (uint256) {
         return s_contractCreationTime;
     }
 
-    function getContractCreationDevFee () external view returns (uint256) {
+    function getContractCreationDevFee() external view returns (uint256) {
         return s_contractCreationDevFee;
     }
 
@@ -60,28 +58,28 @@ contract UserCreatedContract is IUserCreatedContract {
         return s_contractSendGasFee;
     }
 
-    function getOwner () external view returns (address) {
+    function getOwner() external view returns (address) {
         return s_owner;
     }
 
-    function getRecipient () external view returns (address) {
+    function getRecipient() external view returns (address) {
         return s_recipient;
     }
 
-    function getTimeToSend () external view returns (uint256 timeLeftSecs, uint256 timestamp) {
+    function getTimeToSend() external view returns (uint256 timeLeftSecs, uint256 timestamp) {
         uint256 timeLeft = s_timeToSend > block.timestamp ? s_timeToSend - block.timestamp : 0;
         return (timeLeft, s_timeToSend);
     }
 
-    function getContractCreationDevAddress () external view returns (address); // Found in the contract factory variable
+    function getContractCreationDevAddress() external view returns (address); // Found in the contract factory variable
 
-    function setRecipient (address recipient) external {
-        if (msg.sender != owner) revert OnlyOwner(); // Only the owner can set the recipient
-        require(msg.sender == owner, ); 
+    function setRecipient(address recipient) external {
+        if (msg.sender != owner) revert OnlyOwner(); // Only the owner of the contract can set the recipient
         require(recipient != address(0), "Invalid recipient address");
         this.recipient = recipient;
     }
-    function setTimeToSend (uint256 timeLeftSecs, uint256 timestamp) external;
+
+    function setTimeToSend(uint256 timeLeftSecs, uint256 timestamp) external;
 
     function getERC20Balances(address[] calldata tokenAddresses) external view override returns (uint256[] memory) {
         uint256[] memory balances = new uint256[](tokenAddresses.length);
@@ -90,6 +88,4 @@ contract UserCreatedContract is IUserCreatedContract {
         }
         return balances;
     }
-
-   
-        }
+}
