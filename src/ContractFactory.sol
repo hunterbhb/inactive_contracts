@@ -26,7 +26,7 @@ contract ContractFactory is Context, Ownable {
         if (msg.value < s_devFee) revert InsufficientDEVFee();
 
         newContract =
-            address(new UserCreatedContract(msg.sender, recipient, timeToSend, block.timestamp, isPullingAllowed));
+            address(new UserCreatedContract(recipient, timeToSend, isPullingAllowed));
         (bool sent,) = s_devAddress.call{value: s_devFee}("");
         emit ContractCreated(newContract, msg.sender);
     }

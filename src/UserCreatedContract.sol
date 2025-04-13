@@ -6,10 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 error OnlyOwner();
 
-
-
-//TODO Have a function that takes the users address and creates a contract for them.
-//TODO they will be the "owner" of the contract and can set the address to send the assets to. This can also bedone on creation
 //TODO get the amount of link needed for the contract creation and gas fees.
 //TODO they can also set the number of assets to send.
 //TODO use chainlink keepers to automate the sending of assets after a certain time has passed.
@@ -21,35 +17,26 @@ error OnlyOwner();
 contract UserCreatedContract is IUserCreatedContract {
     address public s_owner; // The owner of the contract, who can set the recipient and other parameters
     address public s_recipient; // The address to which the assets will be sent //TODO make this multiple addresses
-    address public s_contractCreationDevAddress; // The address of the developer for payment of the contract creation dev fee
     uint256 public s_timeToSend;
     uint256 public s_contractCreationTime; // The timestamp for when the contract was created
-    uint256 public s_contractSendGasFee; // This is the gas fee for sending assets
 
     bool public s_isPullingAllowed; // This determines if the contract allows pulling of assets or not
 
     constructor(
         address _recipient,
         uint256 _timeToSend,
-        bool _isPullingAllowed,
-        uint256 _contractCreationDevFee,
-        address _contractCreationDevAddress
+        bool _isPullingAllowed
     ) {
-        owner = msg.sender;
-        recipient = _recipient;
-        timeToSend = _timeToSend;
+        owner = msg.sender; //TODO test that one contract factory making the new contract owner is the tx initator
+        s_recipient = _recipient;
+        s_timeToSend = _timeToSend; //Not neccessary but can be set on creation
         contractCreationTime = block.timestamp;
-        contractCreationDevFee = _contractCreationDevFee;
         isPullingAllowed = _isPullingAllowed;
     }
 
     function getRecipient() external view returns (address);
     function getTimeToSend() external view returns (uint256 timeLeftSecs, uint256 timestamp); // can have both or one of them
 
-    function getIsPullingAllowed() public view returns (bool) {
-        return s_isPullingAllowed;
-    }
-    function getOwner() external view returns (address);
     function getContractAddress() external view returns (address);
     function getERC20Balances(address[] calldata tokenAddresses) external view returns (uint256[] memory);
     function getERC721Balances(address[] calldata tokenAddresses) external view returns (uint256[] memory);
@@ -60,26 +47,14 @@ contract UserCreatedContract is IUserCreatedContract {
         return s_contractCreationTime;
     }
 
-    function getContractCreationDevFee() external view returns (uint256) {
-        return s_contractCreationDevFee;
-    }
-
     function calculateSendFee() external view returns (uint256) {
         // This function should calculate the gas fee (chainlink keepers and native token gas) required to send the assets
-        return s_contractSendGasFee;
+        return fee;
     }
 
-    function getOwner() external view returns (address) {
-        return s_owner;
-    }
-
-    function getRecipient() external view returns (address) {
-        return s_recipient;
-    }
-
-    function getTimeToSend() external view returns (uint256 timeLeftSecs, uint256 timestamp) {
+    function calculateTimeToSend() public view returns (uint256 timeLeftSecs, uint256 timestamp) {
         uint256 timeLeft = s_timeToSend > block.timestamp ? s_timeToSend - block.timestamp : 0;
-        return (timeLeft, s_timeToSend);
+        return (timeLeft, timeToSendTimestamp);
     }
 
     function getERC20Balances(address[] calldata tokenAddresses) external view override returns (uint256[] memory) {
@@ -98,6 +73,4 @@ contract UserCreatedContract is IUserCreatedContract {
     }
 
     function setTimeToSend(uint256 timeLeftSecs, uint256 timestamp) external;
-
-    
 }
