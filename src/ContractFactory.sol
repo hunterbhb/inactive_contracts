@@ -29,9 +29,14 @@ contract ContractFactory is Context, Ownable {
             revert NoTimesetForSendingAssets();
         }
         //TODO test secondsToAdd and timeToSend cant both be 0
-        newContract = address(new UserCreatedContract(recipient, timeToSend, secondsToAdd));
+        UserCreatedContract userContract = new UserCreatedContract(recipient, timeToSend, secondsToAdd);
+        newContract = address(userContract);
         (bool sent,) = s_devAddress.call{value: s_devFee}("");
+        if (!sent) {
+            revert InsufficientDEVFee(); // Revert if the payment to the developer fails
+        }
         emit ContractCreated(newContract, msg.sender);
+        return newContract;
     }
 
     //There shouldn't be a need for a maximum requirement in the contract creation fee as safety shouldn't be affected by the fee.

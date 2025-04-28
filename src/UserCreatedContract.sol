@@ -25,9 +25,6 @@ contract UserCreatedContract {
     uint256 public s_contractCreationTime; // The timestamp for when the contract was created
     uint256 public s_timeToSend; // The earliest time when the assets can be sent
 
-    bool public s_isPullingAllowed; // This determines if the contract allows pulling of assets or not //TODO Remove
-
-
     /**
      * @dev Throws if called by any account other than the owner.
      */
@@ -40,13 +37,11 @@ contract UserCreatedContract {
     constructor(
         address _recipient,
         uint256 _timeToSend,
-        bool _isPullingAllowed, //TODO remove 
         uint256 _secsToAdd // The number of seconds to add to the countdown timer when assets are sent
     ) {
         s_owner = msg.sender; //TODO test that one contract factory making the new contract owner is the tx initator
         s_recipient = _recipient;
         s_contractCreationTime = block.timestamp;
-        s_isPullingAllowed = _isPullingAllowed;
         s_secsToAdd = _secsToAdd; // If set to 0, the countdown timer will not be used and the user must use the timestamp to send assets
         s_timesToSend = [_secsToAdd, _timeToSend]; // Initialize with the provided countdown timer and a default timestamp
     }
@@ -63,7 +58,7 @@ contract UserCreatedContract {
             // User should set the secs to add during contract creation
             revert CountdownTimerNotResettable(); 
         }
-        
+
         s_timesToSend[0] = s_secsToAdd; // Reset the countdown timer
         // Find the earliest time to send the assets in s_timesToSend array and sets its value as s_timeToSend
         (countdownTimer < timestampToSend - block.timestamp) ? s_timeToSend = block.timestamp + countdownTimer : s_timeToSend = block.timestamp + timestampToSend;
