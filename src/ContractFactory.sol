@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 error InsufficientDEVFee();
+error NoTimesetForSendingAssets();
 
 contract ContractFactory is Context, Ownable {
     uint256 public s_devFee; // This is the fee paid to the developer for creating a user contract
@@ -18,15 +19,17 @@ contract ContractFactory is Context, Ownable {
         s_devAddress = msg.sender; // Set the contract creator as the dev address
     }
 
-    function createContract(address recipient, uint256 timeToSend, bool isPullingAllowed)
+    function createContract(address recipient, uint256 timeToSend, uint256 secondsToAdd)
         external
         payable
         returns (address newContract)
     {
         if (msg.value < s_devFee) revert InsufficientDEVFee();
-
-        newContract =
-            address(new UserCreatedContract(recipient, timeToSend, isPullingAllowed));
+        if (timeToSend == 0 && secondsToAdd == 0) {
+            revert NoTimesetForSendingAssets();
+        }
+        //TODO test secondsToAdd and timeToSend cant both be 0
+        newContract = address(new UserCreatedContract(recipient, timeToSend, secondsToAdd));
         (bool sent,) = s_devAddress.call{value: s_devFee}("");
         emit ContractCreated(newContract, msg.sender);
     }
