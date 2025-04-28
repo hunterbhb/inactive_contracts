@@ -10,13 +10,11 @@ error NoTimesetForSendingAssets();
 
 contract ContractFactory is Context, Ownable {
     uint256 public s_devFee; // This is the fee paid to the developer for creating a user contract
-    address public s_devAddress; // The address of the developer for payment of the contract creation dev fee
 
     event ContractCreated(address indexed newContract, address indexed creator);
 
-    constructor(uint256 _contractCreationDevFee) {
+    constructor(uint256 _contractCreationDevFee) Ownable(msg.sender) {
         s_devFee = _contractCreationDevFee; //Developer fee for contract creation
-        s_devAddress = msg.sender; // Set the contract creator as the dev address
     }
 
     function createContract(address recipient, uint256 timeToSend, uint256 secondsToAdd)
@@ -25,13 +23,13 @@ contract ContractFactory is Context, Ownable {
         returns (address newContract)
     {
         if (msg.value < s_devFee) revert InsufficientDEVFee();
+        //TODO test secondsToAdd and timeToSend cant both be 0
         if (timeToSend == 0 && secondsToAdd == 0) {
             revert NoTimesetForSendingAssets();
         }
-        //TODO test secondsToAdd and timeToSend cant both be 0
-        UserCreatedContract userContract = new UserCreatedContract(recipient, timeToSend, secondsToAdd);
+        UserCreatedContract userContract = new UserCreatedContract(msg.sender, recipient, timeToSend, secondsToAdd);
         newContract = address(userContract);
-        (bool sent,) = s_devAddress.call{value: s_devFee}("");
+        (bool sent,) = owner().call{value: s_devFee}("");
         if (!sent) {
             revert InsufficientDEVFee(); // Revert if the payment to the developer fails
         }
@@ -43,9 +41,5 @@ contract ContractFactory is Context, Ownable {
     //If fee is too high, users will not use the service. That would be it.
     function setDevFee(uint256 newFee) external onlyOwner {
         s_devFee = newFee;
-    }
-
-    function setDevAddress(address newAddress) external onlyOwner {
-        s_devAddress = newAddress;
     }
 }

@@ -7,7 +7,6 @@ error OnlyOwner();
 error InvalidTimestamp();
 error CountdownTimerNotResettable();
 
-
 //TODO calculate the amount of link needed for the contract creation and gas fees.
 //TODO they can also set the number of assets to send.
 //TODO use chainlink keepers to automate the sending of assets after a certain time has passed.
@@ -28,18 +27,19 @@ contract UserCreatedContract {
     /**
      * @dev Throws if called by any account other than the owner.
      */
-     //TODO test this modifier
+    //TODO test this modifier
     modifier onlyOwner() {
         if (msg.sender != s_owner) revert OnlyOwner();
         _;
     }
 
     constructor(
+        address _owner,
         address _recipient,
         uint256 _timeToSend,
         uint256 _secsToAdd // The number of seconds to add to the countdown timer when assets are sent
     ) {
-        s_owner = msg.sender; //TODO test that one contract factory making the new contract owner is the tx initator
+        s_owner = _owner;
         s_recipient = _recipient;
         s_contractCreationTime = block.timestamp;
         s_secsToAdd = _secsToAdd; // If set to 0, the countdown timer will not be used and the user must use the timestamp to send assets
@@ -56,12 +56,14 @@ contract UserCreatedContract {
             //OR
             // If secs to add is 0, we can't reset the countdown timer
             // User should set the secs to add during contract creation
-            revert CountdownTimerNotResettable(); 
+            revert CountdownTimerNotResettable();
         }
 
         s_timesToSend[0] = s_secsToAdd; // Reset the countdown timer
         // Find the earliest time to send the assets in s_timesToSend array and sets its value as s_timeToSend
-        (countdownTimer < timestampToSend - block.timestamp) ? s_timeToSend = block.timestamp + countdownTimer : s_timeToSend = block.timestamp + timestampToSend;
+        (countdownTimer < timestampToSend - block.timestamp)
+            ? s_timeToSend = block.timestamp + countdownTimer
+            : s_timeToSend = block.timestamp + timestampToSend;
     }
 
     // function getContractAddress() external view returns (address);
