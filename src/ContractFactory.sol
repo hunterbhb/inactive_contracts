@@ -17,7 +17,7 @@ contract ContractFactory is Context, Ownable {
         s_devFee = _contractCreationDevFee; //Developer fee for contract creation
     }
 
-    function createContract(address recipient, uint256 timeToSend, uint256 secondsToAdd)
+    function createContract(address recipient, uint256 timeToSend, address[] tokenAddresses, uint256 secondsToAdd)
         external
         payable
         returns (address newContract)
@@ -27,7 +27,8 @@ contract ContractFactory is Context, Ownable {
         if (timeToSend == 0 && secondsToAdd == 0) {
             revert NoTimesetForSendingAssets();
         }
-        UserCreatedContract userContract = new UserCreatedContract(msg.sender, recipient, timeToSend, secondsToAdd);
+        UserCreatedContract userContract =
+            new UserCreatedContract(msg.sender, recipient, timeToSend, tokenAddresses, secondsToAdd);
         newContract = address(userContract);
         (bool sent,) = owner().call{value: s_devFee}("");
         if (!sent) {
