@@ -14,7 +14,7 @@ contract UserCreatedContract {
     uint256 public immutable s_secsToAdd; // The number of seconds to add to the countdown timer when assets are sent (only if the countdown timer is used and can only be set during contract creation. If no secs default to 0)
 
     address public s_owner; // The owner of the contract, who can set the recipient and other parameters
-    address public s_recipient; // The address to which the assets will be sent //TODO make this multiple addresses
+    address public s_recipient; // The address to which the assets will be sent
     address[] public s_tokenAddresses; // Array to store token addresses to be sent later
     uint256[2] public s_timesToSend; // Array of two timestamps: [countdown timer, timestamp to send assets]. Both can be used or only one. Once set in contract creation the timestamp can not be changed.
     uint256 public s_contractCreationTime; // The timestamp for when the contract was created
@@ -88,17 +88,23 @@ contract UserCreatedContract {
     }
     // This function will be called by the user to deposit assets to the contract
     // Assests can also be sent to the contract by anyone, but only the owner can add them to the s_tokenAddresses array. This function is more of a helper function to make it easier for the user to deposit assets and directly track.
+    //TODO save the token type of the deposited asset to the contract to? Chainlink keepers will need to know the token type to send the assets.
 
-    function depositTokenAssets(address tokenAddress, string tokenType) external onlyOwner {
-        if (tokenType == "ERC20") {
+    function depositTokenAssets(
+        address tokenAddress,
+        string memory tokenType,
+        uint256 tokenIdOrAmount,
+        uint256 amountForERC1155
+    ) external onlyOwner {
+        if (keccak256(abi.encodePacked(tokenType)) == keccak256(abi.encodePacked("ERC20"))) {
             IERC20 token = IERC20(tokenAddress);
-            token.transferFrom(msg.sender, address(this), amount);
-        } else if (tokenType == "ERC721") {
+            token.transferFrom(msg.sender, address(this), tokenIdOrAmount);
+        } else if (keccak256(abi.encodePacked(tokenType)) == keccak256(abi.encodePacked("ERC721"))) {
             IERC721 token = IERC721(tokenAddress);
-            token.safeTransferFrom(msg.sender, address(this), tokenId);
-        } else if (tokenType == "ERC1155") {
+            token.safeTransferFrom(msg.sender, address(this), tokenIdOrAmount);
+        } else if (keccak256(abi.encodePacked(tokenType)) == keccak256(abi.encodePacked("ERC1155"))) {
             IERC1155 token = IERC1155(tokenAddress);
-            token.safeTransferFrom(msg.sender, address(this), tokenId, amount, "");
+            token.safeTransferFrom(msg.sender, address(this), tokenIdOrAmount, amountForERC1155, "");
         } else {
             revert("Invalid asset type");
         }

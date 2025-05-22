@@ -17,13 +17,13 @@ contract ContractFactory is Context, Ownable {
         s_devFee = _contractCreationDevFee; //Developer fee for contract creation
     }
 
-    function createContract(address recipient, uint256 timeToSend, address[] tokenAddresses, uint256 secondsToAdd)
-        external
-        payable
-        returns (address newContract)
-    {
+    function createContract(
+        address recipient,
+        uint256 timeToSend,
+        address[] calldata tokenAddresses,
+        uint256 secondsToAdd
+    ) external payable returns (address newContract) {
         if (msg.value < s_devFee) revert InsufficientDEVFee();
-        //TODO test secondsToAdd and timeToSend cant both be 0
         if (timeToSend == 0 && secondsToAdd == 0) {
             revert NoTimesetForSendingAssets();
         }
