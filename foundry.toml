@@ -3,7 +3,7 @@ src = 'src'                                                   # the source direc
 test = 'test'                                                 # the test directory
 out = 'out'                                                   # the output directory (for artifacts)
 libs = ['lib']                                                # a list of library directories
-remappings = ["@openzeppelin/=lib/openzeppelin-contracts/", "@chainlink/=lib/foundry-chainlink-toolkit"]   # a list of remappings
+remappings = ["@openzeppelin/=lib/openzeppelin-contracts", "@chainlink/=lib/foundry-chainlink-toolkit"]   # a list of remappings
 libraries = []                                                # a list of deployed libraries to link against
 cache = true                                                  # whether to cache builds or not
 force = false                                                 # whether to ignore the cache (clean build)
