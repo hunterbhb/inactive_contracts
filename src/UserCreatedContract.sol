@@ -19,7 +19,6 @@ contract UserCreatedContract is AutomationCompatibleInterface {
     address public s_owner; // The owner of the contract, who can set the recipient and other parameters
     address public s_recipient; // The address to which the assets will be sent
     address[] public s_tokenAddresses; // Array to store token addresses to be sent later
-    uint256 public s_ETHBalance; // The balance of(ETH) in the contract
     uint256 public s_contractCreationTime; // The timestamp for when the contract was created
     uint256 public s_timeToSend; // Time when the assets can be sent
 
@@ -47,11 +46,11 @@ contract UserCreatedContract is AutomationCompatibleInterface {
         s_contractCreationTime = block.timestamp;
         s_tokenAddresses = _tokenAddresses; // Init array of token addresses to be sent later
         s_timeToSend = _timeToSend;
-        s_secsToAdd = _secsToAdd; // If set to 0, the countdown timer will not be used and the user must use the timestamp to send assets
+        s_secsToAdd = _secsToAdd; // Must be non-zero to allow countdown timer resets
 
     }
 
-    receive() external payable {
+    receive() external payable { 
         
     }
 
